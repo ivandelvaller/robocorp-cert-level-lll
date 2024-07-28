@@ -1,6 +1,3 @@
-# SETTINGS
-import requests
-
 from robocorp import workitems
 from robocorp.tasks import task
 
@@ -8,15 +5,10 @@ from RPA.HTTP import HTTP
 from RPA.JSON import JSON
 from RPA.Tables import Tables
 
-# KEYWORDS
-
 http = HTTP()
 json_rpa = JSON()
 table = Tables()
-
 TRAFFIC_JSON_FILE_PATH = "output/traffic.json"
-
-# TASKS
 
 
 @task
@@ -31,20 +23,9 @@ def produce_traffic_data():
     save_work_item_payloads(payloads)
 
 
-@task
-def consume_traffic_data():
-    """Consume the data from traffic."""
-    print("Consumming.")
-    process_traffic_data()
-
-
-# FUNCTIONS
-
-
 def download_traffic_data():
     """Download data from API and save it as a file in output folder."""
     url = "https://github.com/robocorp/inhuman-insurance-inc/raw/main/RS_198.json"
-
     http.download(url=url, target_file=TRAFFIC_JSON_FILE_PATH, overwrite=True)
 
 
@@ -128,26 +109,3 @@ def save_work_item_payloads(payloads):
     for item in payloads:
         variables = {"traffic_data": item}
         workitems.outputs.create(variables)
-
-
-def process_traffic_data():
-    """Process the work items."""
-    for item in workitems.inputs:
-        traffic_data = item.payload["traffic_data"]
-        if traffic_data["country"] == 3:
-            status, json_response = post_traffic_data_to_sales_system(traffic_data)
-
-            if status == 200:
-                item.done()
-            else:
-                item.fail(
-                    exception_type="APPLICATION",
-                    code="TRAFFIC_DATA_POST_FAILED",
-                    message=json_response["message"],
-                )
-
-
-def post_traffic_data_to_sales_system(traffic_data):
-    url = "https://robocorp.com/inhuman-insurance-inc/sales-system-api"
-    response = requests.post(url, json=traffic_data)
-    return response.status_code, response.json()
