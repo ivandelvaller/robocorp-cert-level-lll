@@ -30,7 +30,8 @@ def produce_traffic_data():
 @task
 def consume_traffic_data():
     """Consume the data from traffic."""
-    print("Consume")
+    print("Consumming")
+    process_traffic_data()
 
 
 # FUNCTIONS
@@ -123,3 +124,10 @@ def save_work_item_payloads(payloads):
     for item in payloads:
         variables = {"traffic_data": item}
         workitems.outputs.create(variables)
+
+
+def process_traffic_data():
+    """Process the work items."""
+    for item in workitems.inputs:
+        traffic_data = item.payload["traffic_data"]
+        print(traffic_data)
