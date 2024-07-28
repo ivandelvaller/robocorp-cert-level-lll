@@ -25,12 +25,13 @@ def produce_traffic_data():
     filtered_data = filter_and_sort_traffic_data(data_table)
     latest_data = get_latest_data_by_country(filtered_data)
     payloads = create_work_item_payloads(latest_data)
+    save_work_item_payloads(payloads)
 
 
 @task
 def consume_traffic_data():
     """Consume the data from traffic."""
-    print("Consumming")
+    print("Consumming.")
     process_traffic_data()
 
 
