@@ -24,7 +24,8 @@ def produce_traffic_data():
     download_traffic_data()
     data_table = load_traffic_data_as_table()
     filtered_data = filter_and_sort_traffic_data(data_table)
-    get_latest_data_by_country(filtered_data)
+    latest_data = get_latest_data_by_country(filtered_data)
+    payloads = create_work_item_payloads(latest_data)
 
 
 @task
@@ -69,14 +70,15 @@ def filter_and_sort_traffic_data(data_table):
     for data in data_table:
         if data[rate_key] < max_rate and data[gender_key] == gender_value:
             item = {}
-            item[rate_key] = data[rate_key]
+            item["rate"] = data[rate_key]
+            item["year"] = data[year_key]
+            item["country"] = data[code_country_key]
             item[gender_key] = data[gender_key]
-            item[year_key] = data[year_key]
-            item[code_country_key] = data[code_country_key]
+
             filtered_data.append(item)
 
     # SORT DATA BY TimeDim
-    sorted_data = sorted(filtered_data, key=lambda x: x[year_key], reverse=True)
+    sorted_data = sorted(filtered_data, key=lambda x: x["year"], reverse=True)
 
     return sorted_data
 
@@ -84,7 +86,7 @@ def filter_and_sort_traffic_data(data_table):
 def get_latest_data_by_country(data):
     """Get the latest data of each country in data array."""
     # Group data by country code.
-    country_code_key = "SpatialDim"
+    country_code_key = "country"
     latest_data = []
     countries = set()
 
@@ -101,3 +103,17 @@ def get_latest_data_by_country(data):
             pass
 
     return latest_data
+
+
+def create_work_item_payloads(traffic_data):
+    """Clear data in array."""
+    payloads = []
+    for data in traffic_data:
+        item = {}
+        item["country"] = data["country"]
+        item["year"] = data["year"]
+        item["rate"] = data["rate"]
+
+        payloads.append(item)
+
+    return payloads
