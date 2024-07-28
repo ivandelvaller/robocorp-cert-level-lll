@@ -1,10 +1,9 @@
 # SETTINGS
-
+from robocorp import workitems
 from robocorp.tasks import task
 from RPA.HTTP import HTTP
 from RPA.JSON import JSON
 from RPA.Tables import Tables
-import json
 
 # KEYWORDS
 
@@ -117,3 +116,10 @@ def create_work_item_payloads(traffic_data):
         payloads.append(item)
 
     return payloads
+
+
+def save_work_item_payloads(payloads):
+    """Save the payloads as work items."""
+    for item in payloads:
+        variables = {"traffic_data": item}
+        workitems.outputs.create(variables)
